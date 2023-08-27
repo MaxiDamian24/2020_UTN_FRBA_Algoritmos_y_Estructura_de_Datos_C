@@ -1,0 +1,202 @@
+//============================================================================
+// Archivo     : Trabajo.cpp
+// Materia     : Algoritmo y estructura de datos
+// Curso       : K1151
+// Descripcion : Trabajo practico grupal
+// Autores     : Daniela Cataldo, Maximiliano Villca, Maximiliano Argañaraz, Gabriel Costarella
+// Version     : 01
+//============================================================================
+
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+// Declaro estructura de datos
+struct Deposito {
+   int codigo;
+   int fecha;
+   int mov;
+   int unidades;
+   int costo;
+   int precio;
+};
+
+// Nombre de los procedimientos
+void inicializarini(Deposito vec1[], int pos, Deposito valor);
+void insertarOrdenado (Deposito vec [], int &len, Deposito valor);
+void insertar (Deposito vec[], int &len, Deposito valor, int pos);
+
+
+int main() {
+
+   // Declarar variables
+   int len;
+   int stock;
+   int ventas;
+   int margen;
+   int promedio;
+
+   // Inicializar variables
+   stock = 0;
+   ventas = 0;
+   margen = 0;
+   promedio = 0;
+
+   // Declaro el archivo
+   FILE* Dep;
+
+   // Abro para escribir el archivo
+   Dep = fopen ("deposito.dat","rb");
+
+   Deposito raux;
+   Deposito VectorOrd[13];
+   Deposito auxini;
+
+   auxini.codigo   = 0;
+   auxini.costo    = 0;
+   auxini.fecha    = 0;
+   auxini.mov      = 0;
+   auxini.precio   = 0;
+   auxini.unidades = 0;
+
+   inicializarini(VectorOrd, 13, auxini);
+
+   fread(&raux,sizeof (struct Deposito),1,Dep);
+
+   len = 0;
+   while (!feof(Dep)){
+
+           auxini.codigo   = raux.codigo;
+           auxini.costo    = raux.costo;
+           auxini.fecha    = raux.fecha;
+           auxini.mov      = raux.mov;
+           auxini.precio   = raux.precio;
+           auxini.unidades = raux.unidades;
+
+           insertarOrdenado (VectorOrd, len, auxini);
+
+           fread(&raux,sizeof (struct Deposito),1,Dep);
+
+   }
+
+   fclose(Dep);
+
+   Dep = fopen("DatosOrd.dat","wb");
+   len = 13;
+   for (int i = 0; i<len;i++){
+      fwrite(&VectorOrd[i],sizeof (struct Deposito ),1,Dep);
+   }
+
+   fclose(Dep);
+
+
+   // Abro para escribir el archivo
+    Dep = fopen ("DatosOrd.dat","rb");
+
+   fread(&raux,sizeof (struct Deposito),1,Dep);
+
+   while (!feof(Dep)){
+
+           auxini.codigo   = raux.codigo;
+           stock = 0;
+           ventas = 0;
+           margen = 0;
+           promedio = 0;
+           cout<<"----------------------------------------------------" <<endl;
+           cout<<"Código de Producto : " <<raux.codigo <<endl;
+           while (!feof(Dep) && raux.codigo==auxini.codigo){
+
+                 // Obtenemos el stock actual pór productos
+                 if (raux.mov == 100 || raux.mov == 200){
+                    stock = stock + raux.unidades;
+                 }
+                 else {
+                       stock = stock - raux.unidades;
+                 }
+
+                 // Obtenemos las unidades vendidas del periodo mencionado.
+                 if (raux.mov == 600 && ( raux.fecha >= 20190101 && raux.fecha <= 20191231 ) ){
+                    ventas = ventas + raux.unidades;
+                 }
+
+
+                 // Obtenemos el margen del producto
+                 if (raux.mov == 600){
+                    margen = margen + ( raux.precio - raux.costo );
+                 }
+
+
+                 fread(&raux,sizeof (struct Deposito),1,Dep);
+           }
+
+           cout<<"Stock actual : " <<stock <<endl;
+           cout<<"Unidades vendidas en los ultimos 12 meses es : " <<ventas <<endl;
+           cout<<"Margen total : " <<margen <<endl;
+           if ( margen > 0) {
+              promedio = ( margen / 24  );
+           }
+           else {
+               promedio = 0;
+           }
+           cout<<"Margen promedio ultimos 24 meses : " <<promedio <<endl;
+
+
+   }
+
+   fclose(Dep);
+
+
+}
+
+
+void inicializarini(Deposito vec1[], int pos, Deposito valor){
+
+   for (int i=0;i<pos;i++){
+       vec1[i].codigo  = valor.codigo;
+       vec1[i].costo   = valor.costo;
+       vec1[i].fecha   = valor.fecha;
+       vec1[i].mov     = valor.mov;
+       vec1[i].precio  = valor.precio;
+       vec1[i].unidades = valor.unidades;
+  }
+
+}
+
+
+void insertar (Deposito vec[], int &len, Deposito valor, int pos){
+
+   for (int i= len; i>pos; i--){
+     vec [i].codigo  = vec [i-1].codigo;
+     vec [i].costo = vec [i-1].costo;
+     vec [i].fecha  = vec [i-1].fecha;
+     vec [i].mov = vec [i-1].mov;
+     vec [i].precio = vec [i-1].precio;
+     vec [i].unidades = vec [i-1].unidades;
+   }
+
+   vec[pos].codigo  = valor.codigo;
+   vec[pos].costo   = valor.costo;
+   vec[pos].fecha   = valor.fecha;
+   vec[pos].mov     = valor.mov;
+   vec[pos].precio  = valor.precio;
+   vec[pos].unidades = valor.unidades;
+   len ++;
+}
+
+void insertarOrdenado (Deposito vec [], int &len, Deposito valor){
+   int i =0;
+   //determinar dónde tengo que insertar
+   while (i < len && vec[i].codigo <= valor.codigo){
+      i ++;
+   }
+
+   if (i==len){
+      vec [len].codigo   = valor.codigo;
+      vec [len].costo    = valor.costo;
+      vec [len].fecha    = valor.fecha;
+      vec [len].mov      = valor.mov;
+      vec [len].precio   = valor.precio;
+      vec [len].unidades = valor.unidades;
+      len ++;
+   } else insertar (vec,len,valor,i);
+}
