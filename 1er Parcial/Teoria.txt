@@ -1,0 +1,23 @@
+si hay que hacer el procedimiento de cargar vectores?
+
+1)Vector: es un conjunto de variables ordenadas e indexadas, quiere decir que voy a tener una cantidad de valores organizados y voy a poder acceder a inicializarlos con un indice.
+
+2) Registro: Es un tipo de dato definido por el programador
+Caracteristicas: 
+-Los valores pueden ser el mismo tipo
+-Estructura heterogenea
+-Los valores almacenados tienen de nombre llamado campo, cada uno con un indentificador y se puede acceder a cada uno de forma individual,y es almacenamiento fijo.
+
+struct Stock3 {
+     int Producto;
+     int Descripción;
+     int Proveedor;
+     int Peso;
+     char CantUnid;
+};
+
+3) struct  Alumno3 {
+     int Legajo;
+     char Nota1;
+     char Nota2;
+};
